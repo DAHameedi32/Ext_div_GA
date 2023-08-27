@@ -1,8 +1,13 @@
 use faer_core::{Mat, mul::matmul, MatRef, mat};
 
 #[allow(non_snake_case)]
+//define a wedge product:
+//vectors as a matrix: u, v.
+//Wedge product is defined as: (u^Tv - uv^T) for row vectors Ref: https://www.math.purdue.edu/~arapura/preprints/diffforms.pdf 
+//taken as given that u and v have same dimension
+//however this only works for vectors, so could only generate 2-forms and maybe 3-forms
 
-//Need to define a function to flatten tensor to matrix:
+//need to define a function to take the rank 3 tensor to a rank 2 tensor
 pub fn flatten_to_mat(tensor:Vec<Vec<Mat<f64>>>) -> Mat<f64>
 {
    let y_dim_outer = tensor.len();
@@ -27,12 +32,6 @@ pub fn flatten_to_mat(tensor:Vec<Vec<Mat<f64>>>) -> Mat<f64>
    return fin_mat;
 }
 
-//define a wedge product:
-//vectors as a matrix: u, v.
-//Wedge product is defined as: 1/2 (u^Tv - uv^T) Ref: https://www.math.purdue.edu/~arapura/preprints/diffforms.pdf 
-//taken as given that u and v have same dimension
-//however this only works for vectors, so could only generate poincare dual forms
-//as such define the new wedge product as (u dp v) - (v dp u)
 pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64>
 {
     //initialise matrix A
@@ -74,24 +73,27 @@ pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64>
         }
 
     }
-    let ret_mat = flatten_to_mat(tensor); //flattens tensor to matrix
+    let ret_mat = flatten_to_mat(tensor);
     return ret_mat; //returns a matrix
 
 }
 
-
-pub fn wedge(u : MatRef<f64>, v : MatRef<f64>) -> Mat<f64>{ //remember to as_ref() the row vectors when you call the function
+pub fn wedge_v(u : MatRef<f64>, v : MatRef<f64>) -> Mat<f64> //wedge product for vectors
+{ 
+    //This is the process for vectors
+    
+    //remember to as_ref() row vectors when you call the function
     //need to fill out matrices for the associated vectors, as they are both n-dimensional row vectors we convert to an nxn matrix with the vector taking up the first row, 0 in all other entries
     let mut u_buf = Mat::zeros(u.ncols(), u.ncols());
     let mut v_buf = Mat::zeros(v.ncols(), v.ncols());
 
     for i in 0..u_buf.ncols()
     {
-        u_buf.write(0, i, u.read(0, i));
+       u_buf.write(0, i, u.read(0, i));
     }
     for j in 0..v_buf.ncols()
     {
-        v_buf.write(0, j, v.read(0, j));
+       v_buf.write(0, j, v.read(0, j));
     }
     //create some buffer matrices to store the product:
     let mut buff_l = Mat::zeros(u_buf.nrows(), v_buf.ncols());
@@ -102,13 +104,20 @@ pub fn wedge(u : MatRef<f64>, v : MatRef<f64>) -> Mat<f64>{ //remember to as_ref
 
     //compute subtraction in brackets:
     let brack_ex = buff_l - buff_r; //stores final bracketed expression: (u^Tv - uv^T)
-    let identity = Mat::with_dims(brack_ex.nrows(), brack_ex.ncols(), |i, j| if i == j { 0.5 } else { 0.0 }); //generate identity matrix for use in wedge computation
+    let identity = Mat::with_dims(brack_ex.nrows(), brack_ex.ncols(), |i, j| if i == j { 1.0 } else { 0.0 }); //generate identity matrix for use in wedge computation
 
-    let mut wedge_prod_fin = Mat::zeros(u.ncols(), v.ncols());//store final wedge product matrix as  1/2*(u^Tv - uv^T)
+    let mut wedge_prod_fin = Mat::zeros(u.ncols(), v.ncols());//store final wedge product
     matmul(wedge_prod_fin.as_mut(), identity.as_ref(), brack_ex.as_ref(), None, 1.0f64, faer_core::Parallelism::Rayon(0));
 
-    return wedge_prod_fin //returns wedge_product matrix
+    
+    return wedge_prod_fin; //returns wedge_product matrix
 } 
+
+pub fn wedge_m(u: MatRef<f64>, v:MatRef<f64>) -> Mat<f64> //wedge product for matrices
+{
+    let fin_mat = direct_prod(u, v) - direct_prod(v, u);
+    return fin_mat;
+}
 
 fn main() {
     /* 
@@ -149,13 +158,14 @@ fn main() {
     let r = mat!([0.0f64, 0.0f64, 2.0f64, 0.0f64]);
     let s = mat!([0.0f64, 0.0f64, 0.0f64, 2.0f64]);
 
-    let A = wedge(p.as_ref(), q.as_ref());
-    let B = wedge(r.as_ref(), s.as_ref());
-    let AwedgeB = wedge(A.as_ref(), B.as_ref());
-    
+    let A = wedge_v(p.as_ref(), q.as_ref());
+    let B = wedge_v(r.as_ref(), s.as_ref());
     println!("{:?}", A);
     println!("{:?}", B);
-    println!("{:?}", AwedgeB);
+
+    let c = wedge_m(A.as_ref(), B.as_ref());
+    
+    println!("{:?}", c);
     /* 
     let c: Mat<f64> = wedge(p.as_ref(), q.as_ref()); //c is a 2-form
     let k: Mat<f64> = wedge(r.as_ref(), c.as_ref()); //k should be a 3-form as wedge product is associative
@@ -164,5 +174,4 @@ fn main() {
     println!("{:?}", k);
     println!("{:?}", K);
     */
-    //we can now learn the exterior derivative, which we will take to be a map from a k-form to a k+1 form:
 }
