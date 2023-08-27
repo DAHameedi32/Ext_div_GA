@@ -55,45 +55,28 @@ pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64>
         }
     }
     //compute and collect n+1 rank tensor sub matrices in a vector
-    let mut tensor_buf:Vec<Mat<f64>> = vec![];
-    for i in 0..A_dims_rows{
-        for j in 0..A_dims_cols{
-            let aux_mat : Mat<f64> = Mat::with_dims(A_dims_rows as usize, A_dims_cols as usize, |x, y| if x == y { A_buf.read(i as usize, j as usize) } else { 0.0 }); 
-            let mut targ_mat = Mat::zeros(B_dims_rows as usize, B_dims_cols as usize);
-            matmul(targ_mat.as_mut(), aux_mat.as_ref(), B_buf.as_ref(), None, 1.0, faer_core::Parallelism::Rayon(0));
-            tensor_buf.push(targ_mat);
-        }
-    }
-    //initialise target matrix C
-    let C_cols = (A_dims_cols * B_dims_cols) as usize;
-    let C_rows = (A_dims_rows * B_dims_rows) as usize;
-    let mut C = Mat::zeros(C_rows, C_cols);
-    for i in 0..(tensor_buf.len() as usize){ //iterates through the tensor buffer
-        //takes first entry which is a matrix of B_dims * B_dims
-        //moves 0, 0 to entry 0, 0
-        //moves 0, 1 to entry 0, 1
-        //moves 1, 0 to entry 1, 0
-        //moves 1, 1 to entry 1, 1 etc until (B_dims, B_dims) is mapped
-        //moves to next entry and repeats process for:
-        //0,0 to 0+B_dims,0+B_dims
-        //0,1 to 0+B_dims,1+B_dims
-        //1,0 to 1+B_dims,0+B_dims
-        //1, 1 to 1+B_dims,1+B_dims
-
-        for y in 0..B_dims_rows{
-            for x in 0..B_dims_cols{
-                //general formula moves (x, y) in B in tesnor_buf to (x+(B_dims*i), y+(B_dims*i)) in C
-                C.write(
-                    (y + (B_dims_rows * i as i64)) as usize,                          /* Row*/
-                    (x + (B_dims_cols * i as i64)) as usize,                          /* Column*/
-                    tensor_buf[i].read(x as usize, y as usize)             /* Value*/
-                ); // maps element (x, y) -> (x+n*i, y+n*i)
+    let C_cols = (A_dims_cols) as usize;
+    let C_rows = (A_dims_rows) as usize;
+    let mut tensor:Vec<Vec<Mat<f64>>> = vec![vec![]; C_cols];
+    for x in 0..C_cols
+    {
+        for y in 0..C_rows
+        {
+            //iterate through submatrices
+            for i in 0..A_dims_rows{
+                for j in 0..A_dims_cols{
+                    let aux_mat : Mat<f64> = Mat::with_dims(A_dims_rows as usize, A_dims_cols as usize, |x, y| if x == y { A_buf.read(i as usize, j as usize) } else { 0.0 }); 
+                    let mut targ_mat = Mat::zeros(B_dims_rows as usize, B_dims_cols as usize);
+                    matmul(targ_mat.as_mut(), aux_mat.as_ref(), B_buf.as_ref(), None, 1.0, faer_core::Parallelism::Rayon(0));
+                    tensor[y].push(targ_mat);
+                }
             }
         }
 
     }
-    //return matrix C which is direct product as rank 2 tensor rep
-    return C;
+    let ret_mat = flatten_to_mat(tensor); //flattens tensor to matrix
+    return ret_mat; //returns a matrix
+
 }
 
 
