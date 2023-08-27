@@ -1,12 +1,38 @@
 use faer_core::{Mat, mul::matmul, MatRef, mat};
 
 #[allow(non_snake_case)]
+
+//Need to define a function to flatten tensor to matrix:
+pub fn flatten_to_mat(tensor:Vec<Vec<Mat<f64>>>) -> Mat<f64>
+{
+   let y_dim_outer = tensor.len();
+   let x_dim_outer = tensor[0].len();
+   let y_dim_inner = tensor[0][0].ncols();
+   let x_dim_inner = tensor[0][0].nrows();
+
+   let fin_dims_y = (y_dim_outer as i64 + y_dim_inner as i64);
+   let fin_dims_x = (x_dim_outer as i64 + x_dim_inner as i64);
+   let mut fin_mat: Mat<f64> = Mat::zeros(fin_dims_y as usize, fin_dims_x as usize);
+   for y_out in 0..y_dim_outer{
+        for x_out in 0..x_dim_outer{
+            for y_in in 0..y_dim_inner{
+                for x_in in 0..x_dim_inner{
+                    let current_pos_y = y_out*y_dim_outer + y_in;
+                    let current_pos_x = x_out*x_dim_outer + x_in;
+                    fin_mat.write(current_pos_y, current_pos_x, tensor[y_out][x_out].read(y_in, x_in));
+                }
+            }
+        }
+   }
+   return fin_mat;
+}
+
 //define a wedge product:
 //vectors as a matrix: u, v.
 //Wedge product is defined as: 1/2 (u^Tv - uv^T) Ref: https://www.math.purdue.edu/~arapura/preprints/diffforms.pdf 
 //taken as given that u and v have same dimension
-//however this only works for vectors, so could only generate 2-forms and maybe 3-fo
-
+//however this only works for vectors, so could only generate poincare dual forms
+//as such define the new wedge product as (u dp v) - (v dp u)
 pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64>
 {
     //initialise matrix A
