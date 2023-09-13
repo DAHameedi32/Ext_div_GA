@@ -603,38 +603,9 @@ pub fn gaussian_elimination(mut matrix: Mat<f64>) -> Mat<f64> {
     return matrix;
 }
 fn main() {
-    /* 
-    //initial functions in space are numerically described as an evolution from initial conditons.
-    //we can define the 1-form as being the vector rep of the function in space:
-    //F(x,y,z,...)dx + G(x,y,z,...)dy+...
-    //is equivalent to F(...)i + G(...)j +...
-    // let dims : usize = 3; //dimensions of our space
-    //give the explicit 1-forms and the initial conditions we can construct the k-forms as necessary
-    //can compute the functions explicitly:
-    /*
-    let F = 9 * x_1 + 5;
-    let G = 6 * x_2 + 3;
-    let H = 3 * x_3 + 2;
-     */
-    
-    //...
-    //define some restrictions on the problem:
-    //important data for numerical construction:
-    /* 
-    let starting_x_1 = 0;
-    let final_x_1 = 5;
-    let step_x_1 = 0.1;
-
-    let starting_x_2 = 0;
-    let final_x_2 = 5;
-    let step_x_2 = 0.1;
-
-    let starting_x_3 = 0;
-    let final_x_3 = 5;
-    let step_x_3 = 0.1;
-    */
-    //constructing the functions:
-    */
+    //EXAMPLE CODE:
+    //this shows how to create k-forms beginning from one-forms using the non-module specific functions
+    //code might be re-organised at some point
     //once we compute the functions in F(), G(), ... we can compute the wedge at all points
     let p = mat!([2.0f64, 0.0f64, 0.0f64, 0.0f64]); //these row vectors will contain the output of the explicit functions
     let q = mat!([0.0f64, 2.0f64, 0.0f64, 0.0f64]);
@@ -649,12 +620,5 @@ fn main() {
     let c = wedge_m(A.as_ref(), B.as_ref());
     
     println!("{:?}", c);
-    /* 
-    let c: Mat<f64> = wedge(p.as_ref(), q.as_ref()); //c is a 2-form
-    let k: Mat<f64> = wedge(r.as_ref(), c.as_ref()); //k should be a 3-form as wedge product is associative
-    let K: Mat<f64> = wedge(s.as_ref(), k.as_ref()); //should be a 4-form
-    println!("{:?}", c);
-    println!("{:?}", k);
-    println!("{:?}", K);
-    */
+   
 }
