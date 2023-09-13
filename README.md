@@ -1,4 +1,4 @@
-﻿# De-Rham-Cohomology
+﻿# Exterior Derivative via Genetic Algorithm
 
 To Do list:
 \begin{enumerate}
