@@ -7,7 +7,7 @@ pub mod GA
     use faer_core::{Mat, mul::matmul};
     use rand::prelude::*;
 
-    use crate::{wedge_m, compute_dims, gaussian_elimination};
+    use crate::{wedge_m, compute_dims, gaussian_elimination, pad_for_proc};
     pub fn pop_init(pop_size:i8, k_plus_one_form:Mat<f64>) -> Vec<Mat<f64>>
     {
         let mut pop_vec : Vec<Mat<f64>> = vec![];
@@ -223,13 +223,16 @@ pub mod GA
                 }
                 let wedge_buff = wedge_m(a.as_ref(), b.as_ref());
                 let mut ext_div_buff_l = Mat::zeros(wedge_buff.nrows(), wedge_buff.ncols());
-
-                matmul(ext_div_buff_l.as_mut(), ext_d_population[i].as_ref(), wedge_buff.as_ref(), None, 1.0f64, faer_core::Parallelism::Rayon((0)));
+                let ext_d_pop_buff = pad_for_proc(ext_d_population[i].as_ref().to_owned(), ext_div_buff_l.as_ref().to_owned());
+                matmul(ext_div_buff_l.as_mut(), ext_d_pop_buff.as_ref(), wedge_buff.as_ref(), None, 1.0f64, faer_core::Parallelism::Rayon((0)));
                 
                 let mut da: Mat<f64> = Mat::zeros(ext_div_buff_l.nrows(), ext_div_buff_l.ncols());
                 let mut db: Mat<f64> = Mat::zeros(ext_div_buff_l.nrows(), ext_div_buff_l.ncols());
-                matmul(da.as_mut(), ext_d_population[i].as_ref(), a.as_ref(), None, 1.0f64, faer_core::Parallelism::Rayon(0));
-                matmul(db.as_mut(), ext_d_population[i].as_ref(), b.as_ref(), None, 1.0f64, faer_core::Parallelism::Rayon((0)));
+                let buff_d = pad_for_proc(ext_d_population[i].as_ref().to_owned(), da.as_ref().to_owned());
+                let buff_b = pad_for_proc(b.as_ref().to_owned(), db.as_ref().to_owned());
+                let buff_a = pad_for_proc(a.as_ref().to_owned(), da.as_ref().to_owned());
+                matmul(da.as_mut(), buff_d.as_ref(), buff_a.as_ref(), None, 1.0f64, faer_core::Parallelism::Rayon(0));
+                matmul(db.as_mut(), buff_d.as_ref(), buff_b.as_ref(), None, 1.0f64, faer_core::Parallelism::Rayon((0)));
                 let a_rref = gaussian_elimination(a.to_owned());
                 let p = compute_dims(a_rref.as_ref());
                 let antisymmetry_coefficient: i32 = -1;
@@ -409,13 +412,19 @@ pub mod GA
 pub fn flatten_to_mat(tensor:Vec<Vec<Mat<f64>>>) -> Mat<f64>
 {
    let y_dim_outer = tensor.len();
+   println!("{}", y_dim_outer);
    let x_dim_outer = tensor[0].len();
+   println!("{}", x_dim_outer);
    let y_dim_inner = tensor[0][0].ncols();
+   println!("{}", y_dim_inner);
    let x_dim_inner = tensor[0][0].nrows();
+   println!("{}", x_dim_inner);
 
-   let fin_dims_y = (y_dim_outer as i64 * y_dim_inner as i64);
-   let fin_dims_x = (x_dim_outer as i64 * x_dim_inner as i64);
-   let mut fin_mat: Mat<f64> = Mat::zeros(fin_dims_y as usize, fin_dims_x as usize);
+   let fin_dims_y = (y_dim_outer * y_dim_inner);
+   let fin_dims_x = (x_dim_outer * x_dim_inner);
+   println!("{}", fin_dims_y);
+   println!("{}", fin_dims_x);
+   let mut fin_mat: Mat<f64> = Mat::zeros((fin_dims_y) as usize, (fin_dims_x) as usize);
    for y_index in 0..y_dim_outer as usize
    {
         for x_index in 0..x_dim_outer as usize
@@ -425,7 +434,7 @@ pub fn flatten_to_mat(tensor:Vec<Vec<Mat<f64>>>) -> Mat<f64>
                 for j_index in 0..x_dim_inner
                 {
                     fin_mat.write(  y_index*y_dim_outer + i_index,
-                                    x_index*x_dim_outer+ j_index,
+                                    x_index*x_dim_outer + j_index,
                                   tensor[y_index%y_dim_outer][x_index%x_dim_outer].read(i_index, j_index));
                 }
             }
@@ -433,6 +442,7 @@ pub fn flatten_to_mat(tensor:Vec<Vec<Mat<f64>>>) -> Mat<f64>
         }
         
    }
+   println!("---------------------------------------------------------------------------------------------------");
    return fin_mat;
 }
 pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64>
@@ -528,6 +538,22 @@ pub fn compute_dims(u: MatRef<f64>) -> u32
         }
     }
     return dimensionality;
+}
+
+pub fn pad_for_proc(targ_mat:Mat<f64>, sample_mat:Mat<f64>) -> Mat<f64>
+{
+    let sample_x = sample_mat.ncols();
+    let sample_y = sample_mat.nrows();
+
+    let mut return_mat:Mat<f64> = Mat::zeros(sample_y, sample_x);
+    for i in 0..targ_mat.nrows()
+    {
+        for j in 0..targ_mat.ncols()
+        {
+            return_mat.write(i, j, targ_mat.read(i, j));
+        }
+    }
+    return return_mat;
 }
 
 pub fn gaussian_elimination(mut matrix: Mat<f64>) -> Mat<f64> {
@@ -638,15 +664,28 @@ fn main() {
     let q = mat!([0.0f64, 2.0f64, 0.0f64, 0.0f64]);
     let r = mat!([0.0f64, 0.0f64, 2.0f64, 0.0f64]);
     let s = mat!([0.0f64, 0.0f64, 0.0f64, 2.0f64]);
+    let one_forms = vec![p, q, r, s];
     //generate all possible 2-forms from the given 1-forms
-    let A = wedge_v(p.as_ref(), q.as_ref());
-    let B = wedge_v(r.as_ref(), s.as_ref());
-    println!("{:?}", A);
-    println!("{:?}", B);
-
-    let c = wedge_m(A.as_ref(), B.as_ref());
-    
-    println!("{:?}", c);
+    let mut two_forms:Vec<Mat<f64>> = vec![];
+    for i  in 0..one_forms.len()
+    {
+        for j in 0..one_forms.len()
+        {
+            two_forms.push(wedge_v(one_forms[i].as_ref(), one_forms[j].as_ref()));
+        }
+    }
+    //generate all possible 3-forms from the given 2-forms and 1-forms
+    let mut three_forms:Vec<Mat<f64>> = vec![];
+    for i  in 0..one_forms.len()
+    {
+        for j in 0..one_forms.len()
+        {
+            let one_form_buff = pad_for_proc(one_forms[i].as_ref().to_owned(), two_forms[j].as_ref().to_owned());
+            three_forms.push(wedge_v(one_form_buff.as_ref(), two_forms[j].as_ref()));
+        }
+    }
+    let ext_div = GA::GA_main(two_forms, three_forms, 100, 100);
+    println!("{:?}", ext_div);
     /* 
     let c: Mat<f64> = wedge(p.as_ref(), q.as_ref()); //c is a 2-form
     let k: Mat<f64> = wedge(r.as_ref(), c.as_ref()); //k should be a 3-form as wedge product is associative
