@@ -249,11 +249,13 @@ pub fn fitness(
                     );
                 }
             }
+
             let ext_div_buff_r = wedge_m(&da, &b) + a_wedge_db;
 
             //now determine fitness of this equality:
-            let ext_div_result = ext_div_buff_r - ext_div_buff_l;
+            let ext_div_result = ext_div_buff_r - ext_div_buff_l; // < -- error
             let mut derivative_closeness = 0;
+
             for y in 0..ext_div_result.nrows() as usize {
                 for x in 0..ext_div_result.ncols() as usize {
                     derivative_closeness += ext_div_result.read(y, x).powf(2.0f64).sqrt() as i64;
@@ -304,7 +306,7 @@ pub fn GA_main(
         let moved_k_plus_one_forms = k_plus_one_forms.clone();
 
         let ranked_pop = fitness(&moved_k_forms, &moved_k_plus_one_forms, &pop_buffer); // current error here
-
+        panic!("fitness done");
         let mean_fit;
         let mut total_fit = 0.0f64;
         let mut counter = 0;
@@ -441,41 +443,10 @@ pub fn direct_prod(A: &Mat<f64>, B: &Mat<f64>) -> Mat<f64> {
     let q = B.ncols();
 
     // panic!("here");
-    let ret_mat = Mat::with_dims(m * n, p * q, |i, j| {
-        println!("{} {} {} {}", i / p, j / q, i % p, j % q);
+    let ret_mat = Mat::with_dims(p * m, q * n, |i, j| {
         A.read(i / p, j / q) * B.read(i % p, j % q)
     });
 
-    //compute and collect n+1 rank tensor sub matrices in a vector
-    // let C_cols = (A_dims_cols) as usize;
-    // let C_rows = (A_dims_rows) as usize;
-    // let mut tensor: Vec<Vec<Mat<f64>>> = vec![vec![]; C_rows];
-    // for y in 0..C_rows {
-    //     for x in 0..C_cols {
-    //         let mut sub_mat: Mat<f64> = Mat::zeros(B.nrows(), B.ncols());
-    //         //make an auxillary matrix because the scalar multiplication keeps on acting up and clearly isnt stable
-    //         let mut aux_mat: Mat<f64> = Mat::zeros(B.nrows(), B.ncols());
-    //         for i in 0..B_dims_cols {
-    //             for j in 0..B_dims_rows {
-    //                 if (i == j) {
-    //                     aux_mat.write(i as usize, j as usize, A.read(y, x))
-    //                 }
-    //             }
-    //         }
-    //         matmul(
-    //             sub_mat.as_mut(),
-    //             aux_mat.as_ref(),
-    //             B.as_ref(),
-    //             None,
-    //             1.0f64,
-    //             faer_core::Parallelism::Rayon(0),
-    //         );
-
-    //         tensor[y].push(sub_mat);
-    //     }
-    // }
-    // let ret_mat = flatten_to_mat(tensor);
-    // println!("out {:?}", ret_mat);
     return ret_mat; //returns a matrix
 }
 
