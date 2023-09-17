@@ -1,5 +1,4 @@
-use faer_core::{mul::matmul, Mat, MatRef};
-use rand::prelude::*;
+use faer_core::{mul::matmul, Mat};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
 /// Generate a random population of k+1 forms

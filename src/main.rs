@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use faer_core::{mat, mul::matmul, Mat, MatRef};
+use faer_core::{mat, Mat};
 
 mod GA;
 fn main() {
