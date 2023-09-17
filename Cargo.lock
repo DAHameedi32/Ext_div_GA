@@ -3,6 +3,24 @@
 version = 3
 
 [[package]]
+name = "Ext_div_GA"
+version = "0.1.0"
+dependencies = [
+ "derivative",
+ "faer-cholesky",
+ "faer-core 0.9.1 (git+https://github.com/sarah-ek/faer-rs)",
+ "faer-lu",
+ "faer-qr",
+ "faer-svd",
+ "nalgebra 0.32.3",
+ "num-traits",
+ "rand",
+ "simba 0.8.1",
+ "typenum",
+ "wedged",
+]
+
+[[package]]
 name = "aligned-vec"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -609,24 +627,6 @@ name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
-
-[[package]]
-name = "playground"
-version = "0.1.0"
-dependencies = [
- "derivative",
- "faer-cholesky",
- "faer-core 0.9.1 (git+https://github.com/sarah-ek/faer-rs)",
- "faer-lu",
- "faer-qr",
- "faer-svd",
- "nalgebra 0.32.3",
- "num-traits",
- "rand",
- "simba 0.8.1",
- "typenum",
- "wedged",
-]
 
 [[package]]
 name = "ppv-lite86"

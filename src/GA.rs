@@ -195,8 +195,8 @@ pub fn fitness(
             //d(a ∧ b) = (da ∧ b) + (-1)^p (a ∧ db) where a and b are p-forms
             //takes the k-forms a and b, and wedges them together: need to ensure that the dimensionality is okay:
             //do this by getting the jth k-form and the j+1th k-form and padding them out
-            let mut a = k_forms[j].clone();
-            let mut b: Mat<f64>;
+            let a = k_forms[j].clone();
+            let b: Mat<f64>;
             if j + 1 > k_forms.len() {
                 b = k_forms[0].clone();
             } else {
@@ -233,25 +233,24 @@ pub fn fitness(
                 buff_b.as_ref(),
                 None,
                 1.0f64,
-                faer_core::Parallelism::Rayon((0)),
+                faer_core::Parallelism::Rayon(0),
             );
             let a_rref = gaussian_elimination(a.to_owned());
             let p = compute_dims(&a_rref);
             let antisymmetry_coefficient: i32 = -1;
             let a_wedge_db_buff = wedge_m(&a, &db);
-            let mut a_wedge_db = Mat::zeros(a_wedge_db_buff.nrows(), a_wedge_db_buff.ncols());
-            for y in 0..a_wedge_db_buff.nrows() {
-                for x in 0..a_wedge_db_buff.ncols() {
-                    a_wedge_db.write(
-                        y,
-                        x,
-                        antisymmetry_coefficient.pow(p) as f64 * a_wedge_db_buff.read(y, x),
-                    );
-                }
-            }
+            let a_wedge_db =
+                Mat::with_dims(a_wedge_db_buff.nrows(), a_wedge_db_buff.ncols(), |i, j| {
+                    antisymmetry_coefficient.pow(p) as f64 * a_wedge_db_buff.read(i, j)
+                });
 
             let ext_div_buff_r = wedge_m(&da, &b) + a_wedge_db;
 
+            println!(
+                "LHS {}, RHS {}",
+                ext_div_buff_r.ncols(),
+                ext_div_buff_l.ncols()
+            );
             //now determine fitness of this equality:
             let ext_div_result = ext_div_buff_r - ext_div_buff_l; // < -- error
             let mut derivative_closeness = 0;
