@@ -1,21 +1,20 @@
 use faer_core::{mul::matmul, Mat, MatRef};
 use rand::prelude::*;
+use rand::{rngs::StdRng, Rng, SeedableRng};
 
-// use crate::{compute_dims, gaussian_elimination, pad_for_proc, wedge_m};
-pub fn pop_init(pop_size: i8, k_plus_one_form: Mat<f64>) -> Vec<Mat<f64>> {
-    let mut pop_vec: Vec<Mat<f64>> = vec![];
+/// Generate a random population of k+1 forms
+pub fn pop_init(pop_size: usize, k_plus_one_form: Mat<f64>) -> Vec<Mat<f64>> {
+    let mut pop_vec: Vec<Mat<f64>> = Vec::with_capacity(pop_size);
+
+    // seed the PRNG
+    let mut rng = StdRng::from_seed([0; 32]);
 
     //populate the population vector
     for i in 0..pop_size {
-        let mut individual: Mat<f64> = Mat::zeros(k_plus_one_form.nrows(), k_plus_one_form.ncols()); //create new individual
-                                                                                                     //randomise individual characteristics
-        for y in 0..individual.nrows() {
-            for x in 0..individual.ncols() {
-                let mut rng = rand::thread_rng();
-                let mat_element: f64 = rng.gen();
-                individual.write(y, x, mat_element);
-            }
-        }
+        let individual: Mat<f64> =
+            Mat::with_dims(k_plus_one_form.nrows(), k_plus_one_form.ncols(), |_, _| {
+                rng.gen()
+            });
         pop_vec.push(individual);
     }
     return pop_vec;
@@ -295,7 +294,7 @@ pub fn GA_main(
     k_forms: Vec<Mat<f64>>,
     k_plus_one_forms: Vec<Mat<f64>>,
     _generations: i8,
-    _pop_size: i8,
+    _pop_size: usize,
 ) -> (Mat<f64>, f64) {
     let mut population = pop_init(_pop_size, k_plus_one_forms[0].as_ref().to_owned()); //initialises population of exterior derivative matrices
 
