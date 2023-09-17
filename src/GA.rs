@@ -3,7 +3,7 @@ use rand::prelude::*;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
 /// Generate a random population of k+1 forms
-pub fn pop_init(pop_size: usize, k_plus_one_form: Mat<f64>) -> Vec<Mat<f64>> {
+pub fn pop_init(pop_size: usize, k_plus_one_form: &Mat<f64>) -> Vec<Mat<f64>> {
     let mut pop_vec: Vec<Mat<f64>> = Vec::with_capacity(pop_size);
 
     // seed the PRNG
@@ -19,11 +19,12 @@ pub fn pop_init(pop_size: usize, k_plus_one_form: Mat<f64>) -> Vec<Mat<f64>> {
     }
     return pop_vec;
 }
-pub fn reproduce(father: Mat<f64>, mother: Mat<f64>) -> Mat<f64> {
+
+pub fn reproduce(father: &Mat<f64>, mother: &Mat<f64>) -> Mat<f64> {
     let fin_row = father.nrows();
     let fin_col = father.ncols();
-    let father_genome: Vec<String> = to_bitstring(father);
-    let mother_genome: Vec<String> = to_bitstring(mother);
+    let father_genome: Vec<String> = to_bitstring(&father);
+    let mother_genome: Vec<String> = to_bitstring(&mother);
     println!("{:?}", father_genome);
     println!("{:?}", mother_genome);
 
@@ -61,7 +62,8 @@ pub fn reproduce(father: Mat<f64>, mother: Mat<f64>) -> Mat<f64> {
     println!("{:?}", child);
     return child;
 }
-pub fn to_bitstring(m: Mat<f64>) -> Vec<String> {
+
+pub fn to_bitstring(m: &Mat<f64>) -> Vec<String> {
     let mut bit_string: Vec<String> = vec![];
     let m_range_y = m.nrows() as usize;
     let m_range_x = m.ncols() as usize;
@@ -77,6 +79,7 @@ pub fn to_bitstring(m: Mat<f64>) -> Vec<String> {
     }
     return bit_string;
 }
+
 pub fn mutate(bit_string: Vec<String>, mutation_probability: f64) -> Vec<String> {
     let mut res_vec = vec![];
     for i in 0..bit_string.len() {
@@ -97,6 +100,7 @@ pub fn mutate(bit_string: Vec<String>, mutation_probability: f64) -> Vec<String>
     }
     return res_vec;
 }
+
 pub fn mat_from_bitstring(bit_string: Vec<String>, mut targ_mat: Mat<f64>) -> Mat<f64> {
     let targ_mat_range_y = targ_mat.nrows() as usize;
     let targ_mat_range_x = targ_mat.ncols() as usize;
@@ -127,9 +131,9 @@ last two functions to be made
 */
 //fitness function parameters are the k-forms, and the k+1 forms
 pub fn fitness(
-    k_forms: Vec<Mat<f64>>,
-    k_plus_one_forms: Vec<Mat<f64>>,
-    ext_d_population: Vec<Mat<f64>>,
+    k_forms: &Vec<Mat<f64>>,
+    k_plus_one_forms: &Vec<Mat<f64>>,
+    ext_d_population: &Vec<Mat<f64>>,
 ) -> Vec<(Mat<f64>, f64)> {
     let mut ranked_pop: Vec<(Mat<f64>, f64)> = vec![];
     //Axioms:
@@ -290,25 +294,24 @@ pub fn mat_pad(a: Mat<f64>, b: Mat<f64>)
         }
     }
 }
+
 pub fn GA_main(
     k_forms: Vec<Mat<f64>>,
     k_plus_one_forms: Vec<Mat<f64>>,
     _generations: i8,
     _pop_size: usize,
 ) -> (Mat<f64>, f64) {
-    let mut population = pop_init(_pop_size, k_plus_one_forms[0].as_ref().to_owned()); //initialises population of exterior derivative matrices
+    let mut population = pop_init(_pop_size, &k_plus_one_forms[0]); //initialises population of exterior derivative matrices
 
     //repeat this block of code ad 100 generations
     for _r in 0.._generations {
-        let pop_buffer = &population;
-        let moved_k_forms = &k_forms;
-        let moved_k_plus_one_forms = &k_plus_one_forms;
-        let ranked_pop = fitness(
-            moved_k_forms.to_owned(),
-            moved_k_plus_one_forms.to_owned(),
-            pop_buffer.to_owned(),
-        );
-        let mut mean_fit = 0.0f64;
+        let pop_buffer = population.clone();
+        let moved_k_forms = k_forms.clone();
+        let moved_k_plus_one_forms = k_plus_one_forms.clone();
+
+        let ranked_pop = fitness(&moved_k_forms, &moved_k_plus_one_forms, &pop_buffer); // current error here
+
+        let mean_fit;
         let mut total_fit = 0.0f64;
         let mut counter = 0;
         for k in 0..ranked_pop.len() {
@@ -326,21 +329,16 @@ pub fn GA_main(
                     //need to make a metric to calculate whether 2 matrices can breed
                     let _reproduction_metric = ranked_pop[i].1 as f64 + ranked_pop[j].1 as f64;
                     if (_reproduction_metric >= 1.5 * mean_fit) {
-                        let _pair_tuple = (
-                            ranked_pop[i].0.as_ref().to_owned(),
-                            ranked_pop[j].0.as_ref().to_owned(),
-                        );
+                        let _pair_tuple = (ranked_pop[i].0.clone(), ranked_pop[j].0.clone());
                         breeding_pairs.push(_pair_tuple);
                     }
                 }
             }
         }
+
         //now iterate through the breeding pairs and create a new generation:
         for i in 0..breeding_pairs.len() {
-            new_gen.push(reproduce(
-                breeding_pairs[i].0.as_ref().to_owned(),
-                breeding_pairs[i].1.as_ref().to_owned(),
-            ));
+            new_gen.push(reproduce(&breeding_pairs[i].0, &breeding_pairs[i].1));
         }
         //check to see how large the new generation is:
         //if larger than pop_size then cull at random
@@ -373,7 +371,7 @@ pub fn GA_main(
             let x: f64 = rng.gen();
             if (x > prob_mut) {
                 let matrix_buff: Mat<f64> = Mat::zeros(new_gen[i].nrows(), new_gen[i].ncols());
-                let bit_string = to_bitstring(new_gen[i].as_ref().to_owned());
+                let bit_string = to_bitstring(&new_gen[i]);
                 let new_bit_string = mutate(bit_string, prob_mut);
                 let new_mat = mat_from_bitstring(new_bit_string, matrix_buff);
                 new_gen[i] = new_mat;
@@ -384,7 +382,7 @@ pub fn GA_main(
         //repeat for 100 generations now
     }
     //finally extract the fittest matrix and return it:
-    let final_pop = fitness(k_forms, k_plus_one_forms, population);
+    let final_pop = fitness(&k_forms, &k_plus_one_forms, &population);
     let mut fittest_index = 0;
     let mut fitness_value = 0.0f64;
     for i in 0..final_pop.len() as usize {
@@ -435,6 +433,7 @@ pub fn flatten_to_mat(tensor: Vec<Vec<Mat<f64>>>) -> Mat<f64> {
     println!("---------------------------------------------------------------------------------------------------");
     return fin_mat;
 }
+
 pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64> {
     //fetch data about A
     let A_dims_cols = A.ncols() as i64;
@@ -475,6 +474,7 @@ pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64> {
     let ret_mat = flatten_to_mat(tensor);
     return ret_mat; //returns a matrix
 }
+
 pub fn wedge_v(u: MatRef<f64>, v: MatRef<f64>) -> Mat<f64> //wedge product for vectors
 {
     //This is the process for vectors

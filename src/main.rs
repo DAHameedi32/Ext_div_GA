@@ -49,6 +49,7 @@ fn main() {
             two_forms.push(GA::wedge_v(one_forms[i].as_ref(), one_forms[j].as_ref()));
         }
     }
+
     //generate all possible 3-forms from the given 2-forms and 1-forms
     let mut three_forms: Vec<Mat<f64>> = vec![];
     for i in 0..one_forms.len() {
@@ -60,6 +61,7 @@ fn main() {
             three_forms.push(GA::wedge_v(one_form_buff.as_ref(), two_forms[j].as_ref()));
         }
     }
+
     let ext_div = GA::GA_main(two_forms, three_forms, 100, 100);
     println!("{:?}", ext_div);
     /*
