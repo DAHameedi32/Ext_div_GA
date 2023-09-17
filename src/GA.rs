@@ -305,7 +305,7 @@ pub fn GA_main(
         let moved_k_plus_one_forms = k_plus_one_forms.clone();
 
         let ranked_pop = fitness(&moved_k_forms, &moved_k_plus_one_forms, &pop_buffer); // current error here
-        panic!("fitness done");
+                                                                                        // panic!("fitness done");
         let mean_fit;
         let mut total_fit = 0.0f64;
         let mut counter = 0;
