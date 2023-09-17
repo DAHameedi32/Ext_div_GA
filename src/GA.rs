@@ -427,45 +427,55 @@ pub fn flatten_to_mat(tensor: Vec<Vec<Mat<f64>>>) -> Mat<f64> {
     return fin_mat;
 }
 
+/// Given A, an  m x n matrix and B a p x q matrix
+/// Return the Kronecker product, a pm x qn matrix
 pub fn direct_prod(A: &Mat<f64>, B: &Mat<f64>) -> Mat<f64> {
+    // println!("B {:?}", B.read(0, 0));
     // println!("Direct");
     //fetch data about A
-    let A_dims_cols = A.ncols() as i64;
-    let A_dims_rows = A.nrows() as i64;
+    let m = A.nrows();
+    let n = A.ncols();
 
     //fetch data about B
-    let B_dims_cols = B.ncols() as i64;
-    let B_dims_rows = B.nrows() as i64;
+    let p = B.nrows();
+    let q = B.ncols();
+
+    // panic!("here");
+    let ret_mat = Mat::with_dims(m * n, p * q, |i, j| {
+        println!("{} {} {} {}", i / p, j / q, i % p, j % q);
+        A.read(i / p, j / q) * B.read(i % p, j % q)
+    });
 
     //compute and collect n+1 rank tensor sub matrices in a vector
-    let C_cols = (A_dims_cols) as usize;
-    let C_rows = (A_dims_rows) as usize;
-    let mut tensor: Vec<Vec<Mat<f64>>> = vec![vec![]; C_rows];
-    for y in 0..C_rows {
-        for x in 0..C_cols {
-            let mut sub_mat: Mat<f64> = Mat::zeros(B.nrows(), B.ncols());
-            //make an auxillary matrix because the scalar multiplication keeps on acting up and clearly isnt stable
-            let mut aux_mat: Mat<f64> = Mat::zeros(B.nrows(), B.ncols());
-            for i in 0..B_dims_cols {
-                for j in 0..B_dims_rows {
-                    if (i == j) {
-                        aux_mat.write(i as usize, j as usize, A.read(y, x))
-                    }
-                }
-            }
-            matmul(
-                sub_mat.as_mut(),
-                aux_mat.as_ref(),
-                B.as_ref(),
-                None,
-                1.0f64,
-                faer_core::Parallelism::Rayon(0),
-            );
+    // let C_cols = (A_dims_cols) as usize;
+    // let C_rows = (A_dims_rows) as usize;
+    // let mut tensor: Vec<Vec<Mat<f64>>> = vec![vec![]; C_rows];
+    // for y in 0..C_rows {
+    //     for x in 0..C_cols {
+    //         let mut sub_mat: Mat<f64> = Mat::zeros(B.nrows(), B.ncols());
+    //         //make an auxillary matrix because the scalar multiplication keeps on acting up and clearly isnt stable
+    //         let mut aux_mat: Mat<f64> = Mat::zeros(B.nrows(), B.ncols());
+    //         for i in 0..B_dims_cols {
+    //             for j in 0..B_dims_rows {
+    //                 if (i == j) {
+    //                     aux_mat.write(i as usize, j as usize, A.read(y, x))
+    //                 }
+    //             }
+    //         }
+    //         matmul(
+    //             sub_mat.as_mut(),
+    //             aux_mat.as_ref(),
+    //             B.as_ref(),
+    //             None,
+    //             1.0f64,
+    //             faer_core::Parallelism::Rayon(0),
+    //         );
 
-            tensor[y].push(sub_mat);
-        }
-    }
-    let ret_mat = flatten_to_mat(tensor);
+    //         tensor[y].push(sub_mat);
+    //     }
+    // }
+    // let ret_mat = flatten_to_mat(tensor);
+    // println!("out {:?}", ret_mat);
     return ret_mat; //returns a matrix
 }
 
