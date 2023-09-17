@@ -46,7 +46,7 @@ fn main() {
     let mut two_forms: Vec<Mat<f64>> = vec![];
     for i in 0..one_forms.len() {
         for j in 0..one_forms.len() {
-            two_forms.push(GA::wedge_v(one_forms[i].as_ref(), one_forms[j].as_ref()));
+            two_forms.push(GA::wedge_v(&one_forms[i], &one_forms[j]));
         }
     }
 
@@ -54,11 +54,8 @@ fn main() {
     let mut three_forms: Vec<Mat<f64>> = vec![];
     for i in 0..one_forms.len() {
         for j in 0..one_forms.len() {
-            let one_form_buff = GA::pad_for_proc(
-                one_forms[i].as_ref().to_owned(),
-                two_forms[j].as_ref().to_owned(),
-            );
-            three_forms.push(GA::wedge_v(one_form_buff.as_ref(), two_forms[j].as_ref()));
+            let one_form_buff = GA::pad_for_proc(&one_forms[i], &two_forms[j]);
+            three_forms.push(GA::wedge_v(&one_form_buff, &two_forms[j]));
         }
     }
 

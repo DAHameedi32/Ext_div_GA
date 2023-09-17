@@ -195,19 +195,16 @@ pub fn fitness(
             //d(a ∧ b) = (da ∧ b) + (-1)^p (a ∧ db) where a and b are p-forms
             //takes the k-forms a and b, and wedges them together: need to ensure that the dimensionality is okay:
             //do this by getting the jth k-form and the j+1th k-form and padding them out
-            let mut a = k_forms[j].as_ref().to_owned();
+            let mut a = k_forms[j].clone();
             let mut b: Mat<f64>;
             if j + 1 > k_forms.len() {
-                b = k_forms[0].as_ref().to_owned();
+                b = k_forms[0].clone();
             } else {
-                b = k_forms[j + 1].as_ref().to_owned();
+                b = k_forms[j + 1].clone();
             }
-            let wedge_buff = wedge_m(a.as_ref(), b.as_ref());
+            let wedge_buff = wedge_m(&a, &b);
             let mut ext_div_buff_l = Mat::zeros(wedge_buff.nrows(), wedge_buff.ncols());
-            let ext_d_pop_buff = pad_for_proc(
-                ext_d_population[i].as_ref().to_owned(),
-                ext_div_buff_l.as_ref().to_owned(),
-            );
+            let ext_d_pop_buff = pad_for_proc(&ext_d_population[i], &ext_div_buff_l);
             matmul(
                 ext_div_buff_l.as_mut(),
                 ext_d_pop_buff.as_ref(),
@@ -219,12 +216,9 @@ pub fn fitness(
 
             let mut da: Mat<f64> = Mat::zeros(ext_div_buff_l.nrows(), ext_div_buff_l.ncols());
             let mut db: Mat<f64> = Mat::zeros(ext_div_buff_l.nrows(), ext_div_buff_l.ncols());
-            let buff_d = pad_for_proc(
-                ext_d_population[i].as_ref().to_owned(),
-                da.as_ref().to_owned(),
-            );
-            let buff_b = pad_for_proc(b.as_ref().to_owned(), db.as_ref().to_owned());
-            let buff_a = pad_for_proc(a.as_ref().to_owned(), da.as_ref().to_owned());
+            let buff_d = pad_for_proc(&ext_d_population[i], &da);
+            let buff_b = pad_for_proc(&b, &db);
+            let buff_a = pad_for_proc(&a, &da);
             matmul(
                 da.as_mut(),
                 buff_d.as_ref(),
@@ -242,9 +236,9 @@ pub fn fitness(
                 faer_core::Parallelism::Rayon((0)),
             );
             let a_rref = gaussian_elimination(a.to_owned());
-            let p = compute_dims(a_rref.as_ref());
+            let p = compute_dims(&a_rref);
             let antisymmetry_coefficient: i32 = -1;
-            let a_wedge_db_buff = wedge_m(a.as_ref(), db.as_ref());
+            let a_wedge_db_buff = wedge_m(&a, &db);
             let mut a_wedge_db = Mat::zeros(a_wedge_db_buff.nrows(), a_wedge_db_buff.ncols());
             for y in 0..a_wedge_db_buff.nrows() {
                 for x in 0..a_wedge_db_buff.ncols() {
@@ -255,7 +249,7 @@ pub fn fitness(
                     );
                 }
             }
-            let ext_div_buff_r = wedge_m(da.as_ref(), b.as_ref()) + a_wedge_db;
+            let ext_div_buff_r = wedge_m(&da, &b) + a_wedge_db;
 
             //now determine fitness of this equality:
             let ext_div_result = ext_div_buff_r - ext_div_buff_l;
@@ -391,8 +385,7 @@ pub fn GA_main(
             fittest_index = i;
         }
     }
-    let final_tuple = &final_pop[fittest_index];
-    return final_tuple.to_owned();
+    return final_pop[fittest_index].clone();
 }
 
 //define a wedge product:
@@ -434,7 +427,8 @@ pub fn flatten_to_mat(tensor: Vec<Vec<Mat<f64>>>) -> Mat<f64> {
     return fin_mat;
 }
 
-pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64> {
+pub fn direct_prod(A: &Mat<f64>, B: &Mat<f64>) -> Mat<f64> {
+    // println!("Direct");
     //fetch data about A
     let A_dims_cols = A.ncols() as i64;
     let A_dims_rows = A.nrows() as i64;
@@ -462,7 +456,7 @@ pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64> {
             matmul(
                 sub_mat.as_mut(),
                 aux_mat.as_ref(),
-                B,
+                B.as_ref(),
                 None,
                 1.0f64,
                 faer_core::Parallelism::Rayon(0),
@@ -475,7 +469,7 @@ pub fn direct_prod(A: MatRef<f64>, B: MatRef<f64>) -> Mat<f64> {
     return ret_mat; //returns a matrix
 }
 
-pub fn wedge_v(u: MatRef<f64>, v: MatRef<f64>) -> Mat<f64> //wedge product for vectors
+pub fn wedge_v(u: &Mat<f64>, v: &Mat<f64>) -> Mat<f64> //wedge product for vectors
 {
     //This is the process for vectors
 
@@ -534,13 +528,13 @@ pub fn wedge_v(u: MatRef<f64>, v: MatRef<f64>) -> Mat<f64> //wedge product for v
     return wedge_prod_fin; //returns wedge_product matrix
 }
 
-pub fn wedge_m(u: MatRef<f64>, v: MatRef<f64>) -> Mat<f64> //wedge product for matrices
+pub fn wedge_m(u: &Mat<f64>, v: &Mat<f64>) -> Mat<f64> //wedge product for matrices
 {
     let fin_mat = direct_prod(u, v) - direct_prod(v, u);
     return fin_mat;
 }
 
-pub fn compute_dims(u: MatRef<f64>) -> u32 {
+pub fn compute_dims(u: &Mat<f64>) -> u32 {
     let mut dimensionality: u32 = 0;
     for y in 0..u.nrows() {
         for x in 0..u.ncols() {
@@ -552,7 +546,7 @@ pub fn compute_dims(u: MatRef<f64>) -> u32 {
     return dimensionality;
 }
 
-pub fn pad_for_proc(targ_mat: Mat<f64>, sample_mat: Mat<f64>) -> Mat<f64> {
+pub fn pad_for_proc(targ_mat: &Mat<f64>, sample_mat: &Mat<f64>) -> Mat<f64> {
     let sample_x = sample_mat.ncols();
     let sample_y = sample_mat.nrows();
 
