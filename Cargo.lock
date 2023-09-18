@@ -8,7 +8,7 @@ version = "0.1.0"
 dependencies = [
  "derivative",
  "faer-cholesky",
- "faer-core 0.9.1 (git+https://github.com/sarah-ek/faer-rs)",
+ "faer-core",
  "faer-lu",
  "faer-qr",
  "faer-svd",
@@ -199,13 +199,13 @@ dependencies = [
 
 [[package]]
 name = "faer-cholesky"
-version = "0.9.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0411b79e1172972a7f9c483e48cc635f30a60a2368d5cff9afb67759791185da"
+checksum = "b3571cb9bf928b50d166c3ce1a589c0c8f497d0fad20d2aff618880f36cdec7a"
 dependencies = [
  "assert2",
  "dyn-stack",
- "faer-core 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "faer-core",
  "num-complex",
  "num-traits",
  "pulp",
@@ -216,28 +216,9 @@ dependencies = [
 
 [[package]]
 name = "faer-core"
-version = "0.9.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e36300510f89c8c2c87b8b27a915956b83dcc82e6018302cbf63425add0bec8"
-dependencies = [
- "aligned-vec",
- "assert2",
- "bytemuck",
- "coe-rs",
- "dyn-stack",
- "gemm",
- "num-complex",
- "num-traits",
- "pulp",
- "rayon",
- "reborrow",
- "seq-macro",
-]
-
-[[package]]
-name = "faer-core"
-version = "0.9.1"
-source = "git+https://github.com/sarah-ek/faer-rs#91beda53404f294c72fd0e3319abfdc6e43e13d4"
+checksum = "c001521aa85888a44980c5bc19feb0ad4dba74d035556b4f795492de98f7583b"
 dependencies = [
  "aligned-vec",
  "assert2",
@@ -256,15 +237,15 @@ dependencies = [
 
 [[package]]
 name = "faer-lu"
-version = "0.9.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec2cb9d5e04ec2854a49d6f04ca613fdad8fe854c21c9ac21afc4b31dcee5fd2"
+checksum = "794d9ee410cdc76078d7e2f90e7608eed336704214d574e313e51b936637760e"
 dependencies = [
  "assert2",
  "bytemuck",
  "coe-rs",
  "dyn-stack",
- "faer-core 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "faer-core",
  "num-complex",
  "num-traits",
  "paste",
@@ -275,15 +256,15 @@ dependencies = [
 
 [[package]]
 name = "faer-qr"
-version = "0.9.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4634b1e23e6c49d406f75ca5e21298863c9800f1a9386af2fa11d5739768b275"
+checksum = "8f3e09439d6ab34dec514bc13a0596533211fe6036340c58262ed7dacdd03409"
 dependencies = [
  "assert2",
  "bytemuck",
  "coe-rs",
  "dyn-stack",
- "faer-core 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "faer-core",
  "num-complex",
  "num-traits",
  "pulp",
@@ -293,15 +274,15 @@ dependencies = [
 
 [[package]]
 name = "faer-svd"
-version = "0.9.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6355d033c5e127412c340bb246bd4263eb5ec9b5f09d40633c3a90b79fca86c4"
+checksum = "53aa60b625f941aada9840b58dcef051e25d9a2770ea00ba4be50f28bd3814f6"
 dependencies = [
  "assert2",
  "bytemuck",
  "coe-rs",
  "dyn-stack",
- "faer-core 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "faer-core",
  "faer-qr",
  "num-complex",
  "num-traits",
@@ -645,9 +626,9 @@ dependencies = [
 
 [[package]]
 name = "pulp"
-version = "0.13.1"
+version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35403e0126ec324b0eba8f65254eb07ac9502650711dd3933f4ea5e5a809eaee"
+checksum = "50ff10f8f3224a1cab64371fbab0fff9b9cb5892076eb9032dc825c2e50894e4"
 dependencies = [
  "bytemuck",
  "num-complex",
