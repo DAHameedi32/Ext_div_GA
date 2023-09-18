@@ -63,8 +63,7 @@ pub fn reproduce(father: &Mat<f64>, mother: &Mat<f64>) -> Mat<f64> {
 pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
     let mut rng = rand::thread_rng();
     let mutated_matrix: Mat<f64> = Mat::with_dims(matrix.nrows(), matrix.ncols(), |row, col| {
-        let x = matrix.read(row, col);
-        let mut x_bytes = x.to_ne_bytes();
+        let mut x_bytes = matrix.read(row, col).to_ne_bytes();
         x_bytes.iter_mut().for_each(|byte| {
             let mut mask = 0u8;
             for i in 0..7 {
