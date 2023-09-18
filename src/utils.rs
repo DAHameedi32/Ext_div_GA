@@ -116,7 +116,8 @@ pub fn pad_for_proc(targ_mat: &Mat<f64>, sample_mat: &Mat<f64>) -> Mat<f64> {
     return return_mat;
 }
 
-pub fn gaussian_elimination(mut matrix: Mat<f64>) -> Mat<f64> {
+pub fn gaussian_elimination(matrix: &Mat<f64>) -> Mat<f64> {
+    let mut matrix = matrix.clone();
     let rows = matrix.nrows();
     if rows == 0 {
         return matrix; // Nothing to do for an empty matrix.
@@ -181,4 +182,23 @@ pub fn gaussian_elimination(mut matrix: Mat<f64>) -> Mat<f64> {
     }
 
     return matrix;
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::utils::direct_prod;
+    use faer_core::{mat, mul::matmul, Mat};
+    #[test]
+    fn matrix_direct_product() {
+        let a = mat![[1., 2.], [3., 4.]];
+        let b = mat![[0., 5.], [6., 7.]];
+        let expect_result = mat![
+            [0., 5., 0., 10.],
+            [6., 7., 12., 14.],
+            [0., 15., 0., 20.],
+            [18., 21., 24., 28.],
+        ];
+        let result = direct_prod(&a, &b);
+        assert_eq!(result, expect_result)
+    }
 }

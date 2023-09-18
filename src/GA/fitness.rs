@@ -111,7 +111,7 @@ pub fn fitness(
                 1.0f64,
                 faer_core::Parallelism::Rayon(0),
             );
-            let a_rref = gaussian_elimination(a.to_owned());
+            let a_rref = gaussian_elimination(&a);
             let p = compute_dims(&a_rref);
             let antisymmetry_coefficient: i32 = -1;
             let a_wedge_db_buff = wedge_m(&a, &db);
