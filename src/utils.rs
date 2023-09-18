@@ -22,6 +22,11 @@ pub fn direct_prod(A: &Mat<f64>, B: &Mat<f64>) -> Mat<f64> {
     return ret_mat; //returns a matrix
 }
 
+//define a wedge product:
+//vectors as a matrix: u, v.
+//Wedge product is defined as: (u^Tv - uv^T) for row vectors Ref: https://www.math.purdue.edu/~arapura/preprints/diffforms.pdf
+//taken as given that u and v have same dimension
+//however this only works for vectors, so could only generate 2-forms and maybe 3-forms
 pub fn wedge_v(u: &Mat<f64>, v: &Mat<f64>) -> Mat<f64> //wedge product for vectors
 {
     //This is the process for vectors
