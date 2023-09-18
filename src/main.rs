@@ -3,6 +3,7 @@
 use faer_core::{mat, Mat};
 
 mod GA;
+mod utils;
 fn main() {
     /*
     //initial functions in space are numerically described as an evolution from initial conditons.
@@ -46,7 +47,7 @@ fn main() {
     let mut two_forms: Vec<Mat<f64>> = vec![];
     for i in 0..one_forms.len() {
         for j in 0..one_forms.len() {
-            two_forms.push(GA::wedge_v(&one_forms[i], &one_forms[j]));
+            two_forms.push(utils::wedge_v(&one_forms[i], &one_forms[j]));
         }
     }
 
@@ -54,8 +55,8 @@ fn main() {
     let mut three_forms: Vec<Mat<f64>> = vec![];
     for i in 0..one_forms.len() {
         for j in 0..one_forms.len() {
-            let one_form_buff = GA::pad_for_proc(&one_forms[i], &two_forms[j]);
-            three_forms.push(GA::wedge_v(&one_form_buff, &two_forms[j]));
+            let one_form_buff = utils::pad_for_proc(&one_forms[i], &two_forms[j]);
+            three_forms.push(utils::wedge_v(&one_form_buff, &two_forms[j]));
         }
     }
 
