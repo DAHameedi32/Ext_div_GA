@@ -187,7 +187,7 @@ pub fn gaussian_elimination(matrix: &Mat<f64>) -> Mat<f64> {
 #[cfg(test)]
 mod tests {
     use crate::utils::direct_prod;
-    use faer_core::{mat, mul::matmul, Mat};
+    use faer_core::mat;
     #[test]
     fn matrix_direct_product() {
         let a = mat![[1., 2.], [3., 4.]];
