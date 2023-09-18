@@ -62,7 +62,7 @@ pub fn reproduce(father: &Mat<f64>, mother: &Mat<f64>) -> Mat<f64> {
     return child;
 }
 
-pub fn to_bitstring(m: &Mat<f64>) -> Vec<String> {
+fn to_bitstring(m: &Mat<f64>) -> Vec<String> {
     let mut bit_string: Vec<String> = vec![];
     let m_range_y = m.nrows() as usize;
     let m_range_x = m.ncols() as usize;
@@ -101,7 +101,7 @@ pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
     return mat_from_bitstring(res_vec, matrix.clone());
 }
 
-pub fn mat_from_bitstring(bit_string: Vec<String>, mut targ_mat: Mat<f64>) -> Mat<f64> {
+fn mat_from_bitstring(bit_string: Vec<String>, mut targ_mat: Mat<f64>) -> Mat<f64> {
     let targ_mat_range_y = targ_mat.nrows() as usize;
     let targ_mat_range_x = targ_mat.ncols() as usize;
 

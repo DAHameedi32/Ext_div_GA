@@ -92,6 +92,7 @@ pub fn GA_main(
         new_gen.iter_mut().for_each(|mat| {
             let x: f64 = rng.gen();
             if (x > prob_mut) {
+                // im not sure what this condition is for
                 let new_mat = reproduction::mutate(&mat, prob_mut);
                 *mat = new_mat;
             }
