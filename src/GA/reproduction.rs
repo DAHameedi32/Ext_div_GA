@@ -1,6 +1,5 @@
 use faer_core::Mat;
 use rand::{rngs::StdRng, Rng, SeedableRng};
-use typenum::Pow;
 
 /// Generate a random population of k+1 forms
 pub fn pop_init(pop_size: usize, k_plus_one_form: &Mat<f64>) -> Vec<Mat<f64>> {
@@ -94,7 +93,7 @@ pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
     for row in 0..matrix.nrows() {
         for col in 0..matrix.ncols() {
             let mut x = matrix.read(row, col);
-            let mut x_bytes = x.to_le_bytes();
+            let mut x_bytes = x.to_ne_bytes();
             x_bytes.iter_mut().for_each(|byte| {
                 let mut mask = 0u8;
                 for i in 0..7 {
@@ -106,7 +105,7 @@ pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
                 *byte = *byte ^ mask // do bitwise XOR
             });
             // turn back into integer
-            x = f64::from_le_bytes(x_bytes);
+            x = f64::from_ne_bytes(x_bytes);
             // overwrite
             matrix.write(row, col, x)
         }
