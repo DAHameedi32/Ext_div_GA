@@ -59,26 +59,21 @@ pub fn reproduce(father: &Mat<f64>, mother: &Mat<f64>) -> Mat<f64> {
 /// ie bitwise XOR
 pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
     let mut rng = rand::thread_rng();
-    let mut matrix = matrix.clone();
-    for row in 0..matrix.nrows() {
-        for col in 0..matrix.ncols() {
-            let mut x = matrix.read(row, col);
-            let mut x_bytes = x.to_ne_bytes();
-            x_bytes.iter_mut().for_each(|byte| {
-                let mut mask = 0u8;
-                for i in 0..7 {
-                    let out: f64 = rng.gen();
-                    if out <= mutation_probability {
-                        mask += 2u8.pow(i);
-                    }
+    let mutated_matrix: Mat<f64> = Mat::with_dims(matrix.nrows(), matrix.ncols(), |row, col| {
+        let mut x = matrix.read(row, col);
+        let mut x_bytes = x.to_ne_bytes();
+        x_bytes.iter_mut().for_each(|byte| {
+            let mut mask = 0u8;
+            for i in 0..7 {
+                let out: f64 = rng.gen();
+                if out <= mutation_probability {
+                    mask += 2u8.pow(i);
                 }
-                *byte = *byte ^ mask // do bitwise XOR
-            });
-            // turn back into integer
-            x = f64::from_ne_bytes(x_bytes);
-            // overwrite
-            matrix.write(row, col, x)
-        }
-    }
-    matrix
+            }
+            *byte = *byte ^ mask // do bitwise XOR
+        });
+        // turn back into integer
+        f64::from_ne_bytes(x_bytes)
+    });
+    return mutated_matrix;
 }
