@@ -1,5 +1,4 @@
 use faer_core::{mul::matmul, Mat};
-use rand::{rngs::StdRng, Rng, SeedableRng};
 
 /// Given A, an  m x n matrix and B a p x q matrix
 /// Return the Kronecker product, a pm x qn matrix

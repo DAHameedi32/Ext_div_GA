@@ -1,5 +1,5 @@
-use faer_core::{mul::matmul, Mat};
-use rand::{rngs::StdRng, Rng, SeedableRng};
+use faer_core::Mat;
+use rand::Rng;
 
 mod fitness;
 mod reproduction;

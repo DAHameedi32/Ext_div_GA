@@ -1,5 +1,4 @@
 use faer_core::{mul::matmul, Mat};
-use rand::{rngs::StdRng, Rng, SeedableRng};
 
 use crate::utils::*;
 
