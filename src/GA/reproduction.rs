@@ -79,7 +79,8 @@ pub fn to_bitstring(m: &Mat<f64>) -> Vec<String> {
     return bit_string;
 }
 
-pub fn mutate(bit_string: Vec<String>, mutation_probability: f64) -> Vec<String> {
+pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
+    let bit_string = to_bitstring(matrix);
     let mut res_vec = vec![];
     for i in 0..bit_string.len() {
         let mut bit_sep: Vec<char> = bit_string[i].chars().collect();
@@ -97,7 +98,7 @@ pub fn mutate(bit_string: Vec<String>, mutation_probability: f64) -> Vec<String>
         let final_string = bit_sep.into_iter().collect();
         res_vec.push(final_string);
     }
-    return res_vec;
+    return mat_from_bitstring(res_vec, matrix.clone());
 }
 
 pub fn mat_from_bitstring(bit_string: Vec<String>, mut targ_mat: Mat<f64>) -> Mat<f64> {

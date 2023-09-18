@@ -83,9 +83,7 @@ pub fn GA_main(
             let x: f64 = rng.gen();
             if (x > prob_mut) {
                 let matrix_buff: Mat<f64> = Mat::zeros(new_gen[i].nrows(), new_gen[i].ncols());
-                let bit_string = reproduction::to_bitstring(&new_gen[i]);
-                let new_bit_string = reproduction::mutate(bit_string, prob_mut);
-                let new_mat = reproduction::mat_from_bitstring(new_bit_string, matrix_buff);
+                let new_mat = reproduction::mutate(&new_gen[i], prob_mut);
                 new_gen[i] = new_mat;
             }
         }
