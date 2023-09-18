@@ -77,16 +77,26 @@ pub fn GA_main(
             }
         }
         //once all these checks have been fulfilled, then we can mutate the new generation:
-        for i in 0..new_gen.len() {
-            let prob_mut = 0.05f64;
-            let mut rng = rand::thread_rng();
+        // for i in 0..new_gen.len() {
+        //     let prob_mut = 0.05f64;
+        //     let mut rng = rand::thread_rng();
+        //     let x: f64 = rng.gen();
+        //     if (x > prob_mut) {
+        //         let new_mat = reproduction::mutate(&new_gen[i], prob_mut);
+        //         new_gen[i] = new_mat;
+        //     }
+        // }
+
+        let prob_mut = 0.05f64;
+        let mut rng = rand::thread_rng();
+        new_gen.iter_mut().for_each(|mat| {
             let x: f64 = rng.gen();
             if (x > prob_mut) {
-                let matrix_buff: Mat<f64> = Mat::zeros(new_gen[i].nrows(), new_gen[i].ncols());
-                let new_mat = reproduction::mutate(&new_gen[i], prob_mut);
-                new_gen[i] = new_mat;
+                let new_mat = reproduction::mutate(&mat, prob_mut);
+                *mat = new_mat;
             }
-        }
+        });
+
         //let population = new_gen:
         population = new_gen;
         //repeat for 100 generations now
