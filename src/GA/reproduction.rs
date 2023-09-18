@@ -19,65 +19,35 @@ pub fn pop_init(pop_size: usize, k_plus_one_form: &Mat<f64>) -> Vec<Mat<f64>> {
     return pop_vec;
 }
 
+/// Given father bit a, mother bit b and mask m where if m = 1 take father else take mother
+/// a | b | m || output
+/// 0 | 0 | 0 || 0
+/// 0 | 0 | 1 || 0
+/// 0 | 1 | 0 || 1
+/// 0 | 1 | 1 || 0
+/// 1 | 0 | 0 || 0
+/// 1 | 0 | 1 || 1
+/// 1 | 1 | 0 || 1
+/// 1 | 1 | 1 || 1
+///
+/// equivalent to ((a AND m) OR (b AND NOT m)) , so can be done bitwise
 pub fn reproduce(father: &Mat<f64>, mother: &Mat<f64>) -> Mat<f64> {
-    let fin_row = father.nrows();
-    let fin_col = father.ncols();
-    let father_genome: Vec<String> = to_bitstring(&father);
-    let mother_genome: Vec<String> = to_bitstring(&mother);
-    println!("{:?}", father_genome);
-    println!("{:?}", mother_genome);
-
-    let mut child_genome: Vec<String> = vec![];
-    let mut gen_length = 0;
-    //iterate through genomes and collect bit string into char vectors
-    for y in 0..father_genome.len() {
-        let mut c_g_chars: Vec<char> = vec![];
-        let f_g_chars: Vec<_> = father_genome[y].chars().collect();
-        let m_g_chars: Vec<_> = mother_genome[y].chars().collect(); //collects the matrix element genome into a vector<char>
-                                                                    //can now go inside the chars array which has just been made and assign bits to the child genome as required:
-        for j in 0..f_g_chars.len()
-        //collects a float as individual bits
-        {
-            //generate random number
-            let mut rng = rand::thread_rng();
-            let x: f64 = rng.gen();
-            if (x >= 0.5f64) {
-                //take the bit from father genome
-                c_g_chars.push(f_g_chars[j]);
-            }
-            if (x < 0.5) {
-                //take the bit from mother genome
-                c_g_chars.push(m_g_chars[j]);
-            }
-        }
-        //now need to format the genome:
-        //collect c_g_chars as one string:
-        child_genome.push(c_g_chars.iter().collect());
-    }
-    println!("{:?}", child_genome);
-
-    let mut ch: Mat<f64> = Mat::zeros(fin_row, fin_col);
-    let child = mat_from_bitstring(child_genome, ch);
-    println!("{:?}", child);
+    let mut rng = rand::thread_rng();
+    let child: Mat<f64> = Mat::with_dims(father.nrows(), father.ncols(), |row, col| {
+        let mut f_bytes = father.read(row, col).to_ne_bytes(); // mutate in place to save memory
+        let m_bytes = mother.read(row, col).to_ne_bytes();
+        f_bytes
+            .iter_mut()
+            .zip(m_bytes)
+            .for_each(|(f_byte, m_byte)| {
+                let mask: u8 = rng.gen();
+                *f_byte = (*f_byte & mask) | (m_byte & !mask);
+            });
+        f64::from_ne_bytes(f_bytes)
+    });
     return child;
 }
 
-fn to_bitstring(m: &Mat<f64>) -> Vec<String> {
-    let mut bit_string: Vec<String> = vec![];
-    let m_range_y = m.nrows() as usize;
-    let m_range_x = m.ncols() as usize;
-
-    for y in 0..m_range_y {
-        for x in 0..m_range_x {
-            let element = m.read(y, x);
-            let binary_representation = element.to_bits();
-            println!("{:#?}", binary_representation);
-            let bits = format!("{:065b}", binary_representation).chars().collect();
-            bit_string.push(bits);
-        }
-    }
-    return bit_string;
-}
 /// Mutate the element of the vector bitwise
 /// Given mask where 0 is do nothing and 1 is flip
 /// initial | mask || output
@@ -111,29 +81,4 @@ pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
         }
     }
     matrix
-}
-
-fn mat_from_bitstring(bit_string: Vec<String>, mut targ_mat: Mat<f64>) -> Mat<f64> {
-    let targ_mat_range_y = targ_mat.nrows() as usize;
-    let targ_mat_range_x = targ_mat.ncols() as usize;
-
-    //create an array to store the float:
-    let mut float_array: Vec<f64> = vec![];
-    let bs = bit_string;
-    //convert the bit strings to f64s:
-    for i in 0..bs.len() {
-        let binary_rep = &bs[i];
-        let float_bits = u64::from_str_radix(&binary_rep, 2).expect("Error!");
-        let f64_value = f64::from_bits(float_bits);
-        float_array.push(f64_value);
-    }
-    //now add a nested for loop: to populate the target matrix:
-    let mut matrix_iterator = 0;
-    for y in 0..targ_mat_range_y {
-        for x in 0..targ_mat_range_x {
-            targ_mat.write(y, x, float_array[x + matrix_iterator * y]);
-        }
-        matrix_iterator += 1;
-    }
-    return targ_mat;
 }
