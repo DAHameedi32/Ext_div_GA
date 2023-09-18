@@ -1,5 +1,6 @@
 use faer_core::Mat;
 use rand::{rngs::StdRng, Rng, SeedableRng};
+use typenum::Pow;
 
 /// Generate a random population of k+1 forms
 pub fn pop_init(pop_size: usize, k_plus_one_form: &Mat<f64>) -> Vec<Mat<f64>> {
@@ -78,27 +79,39 @@ fn to_bitstring(m: &Mat<f64>) -> Vec<String> {
     }
     return bit_string;
 }
-
+/// Mutate the element of the vector bitwise
+/// Given mask where 0 is do nothing and 1 is flip
+/// initial | mask || output
+///    0    |   0  ||   0
+///    0    |   1  ||   1
+///    1    |   0  ||   1
+///    1    |   1  ||   0
+///
+/// ie bitwise XOR
 pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
-    let bit_string = to_bitstring(matrix);
-    let mut res_vec = vec![];
-    for i in 0..bit_string.len() {
-        let mut bit_sep: Vec<char> = bit_string[i].chars().collect();
-        for j in 0..bit_sep.len() {
-            let mut rng = rand::thread_rng();
-            let x: f64 = rng.gen();
-            if (x <= mutation_probability) {
-                if (bit_sep[j] == '0') {
-                    bit_sep[j] = '1';
-                } else if (bit_sep[j] == '1') {
-                    bit_sep[j] = '0';
+    let mut rng = rand::thread_rng();
+    let mut matrix = matrix.clone();
+    for row in 0..matrix.nrows() {
+        for col in 0..matrix.ncols() {
+            let mut x = matrix.read(row, col);
+            let mut x_bytes = x.to_le_bytes();
+            x_bytes.iter_mut().for_each(|byte| {
+                let mut mask = 0u8;
+                for i in 0..7 {
+                    let out: f64 = rng.gen();
+                    if out <= mutation_probability {
+                        mask += 2u8.pow(i);
+                    }
                 }
-            }
+                *byte = *byte ^ mask // do bitwise XOR
+            });
+            // turn back into integer
+            x = f64::from_le_bytes(x_bytes);
+            // overwrite
+            matrix.write(row, col, x)
         }
-        let final_string = bit_sep.into_iter().collect();
-        res_vec.push(final_string);
     }
-    return mat_from_bitstring(res_vec, matrix.clone());
+    matrix
 }
 
 fn mat_from_bitstring(bit_string: Vec<String>, mut targ_mat: Mat<f64>) -> Mat<f64> {
