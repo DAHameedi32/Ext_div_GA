@@ -72,7 +72,7 @@ pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
                     mask += 2u8.pow(i);
                 }
             }
-            *byte = *byte ^ mask // do bitwise XOR
+            *byte ^= mask // do bitwise XOR (inplace, equiv to byte ^ mask)
         });
         // turn back into integer
         f64::from_ne_bytes(x_bytes)

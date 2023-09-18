@@ -95,7 +95,7 @@ pub fn compute_dims(u: &Mat<f64>) -> u32 {
     let mut dimensionality: u32 = 0;
     for y in 0..u.nrows() {
         for x in 0..u.ncols() {
-            if (u.read(y, x) != 0.0f64) {
+            if u.read(y, x) != 0.0f64 {
                 dimensionality += 1;
             }
         }

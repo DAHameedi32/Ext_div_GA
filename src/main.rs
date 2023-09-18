@@ -1,4 +1,4 @@
-#![allow(non_snake_case)]
+#![allow(non_snake_case, clippy::needless_return)]
 
 use faer_core::{mat, Mat};
 
