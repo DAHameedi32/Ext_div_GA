@@ -138,9 +138,9 @@ pub fn compute_fitness(
     let antisymmetry_coefficient: i32 = -1;
     eprintln!("{:?}", buff_d);
     eprintln!("{:?}", buff_b);
-    eprintln!("{:?}", a);
+    // eprintln!("{:?}", a);
     eprintln!("{:?}", db);
-    let a_wedge_db_buff = wedge_m(&a, &db);
+    let a_wedge_db_buff = wedge_m(&a, &db); // <- here
     let a_wedge_db = Mat::with_dims(a_wedge_db_buff.nrows(), a_wedge_db_buff.ncols(), |i, j| {
         if (a_wedge_db_buff.read(i, j)).is_nan() {
             eprintln!("{}", a_wedge_db_buff.read(i, j));
@@ -149,7 +149,7 @@ pub fn compute_fitness(
         antisymmetry_coefficient.pow(p) as f64 * a_wedge_db_buff.read(i, j)
     });
 
-    eprint!("Done");
+    eprintln!("Done");
     let mut ext_div_buff_r = wedge_m(&da, &b) + a_wedge_db;
 
     println!(
@@ -191,10 +191,22 @@ pub fn compute_fitness(
             );
 
             // println!("mulbuff {} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
+            if ext_div_buff_r.read(y, x).is_nan()
+                || ext_div_buff_l.read(y, x).is_nan()
+                || (-((ext_div_buff_r.read(y, x) - ext_div_buff_l.read(y, x)).abs()))
+                    .exp()
+                    .is_nan()
+            {
+                eprintln!(
+                    "{} {} ",
+                    ext_div_buff_r.read(y, x),
+                    ext_div_buff_l.read(y, x)
+                );
+                panic!("here");
+            }
 
             derivative_closeness +=
-                (-((ext_div_buff_r.read(y, x).powi(2) - ext_div_buff_l.read(y, x).powi(2)).abs()))
-                    .exp();
+                (-((ext_div_buff_r.read(y, x) - ext_div_buff_l.read(y, x)).abs())).exp();
             //will determine the numerical closeness of each element of each matrix
         }
     }
@@ -203,6 +215,10 @@ pub fn compute_fitness(
         "d closeness {}, nilp metric {}, closeness {}",
         derivative_closeness, nilp_metric, closeness
     );
+    if derivative_closeness.is_nan() || closeness.is_nan() {
+        eprintln!("{} {}", derivative_closeness, closeness);
+        panic!()
+    }
     fitness = derivative_closeness as f64 + nilp_metric as f64 + closeness as f64;
 
     let tuple = (exterior_derivative.to_owned(), fitness);

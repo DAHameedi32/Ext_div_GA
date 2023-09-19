@@ -49,6 +49,8 @@ pub fn reproduce(father: &Mat<f64>, mother: &Mat<f64>) -> Mat<f64> {
         let res = f64::from_ne_bytes(f_bytes);
         if res.is_infinite() || res.is_nan() {
             0.
+        } else if res.abs() > 1e300 {
+            1e300
         } else {
             res
         }
@@ -83,6 +85,8 @@ pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
         let res = f64::from_ne_bytes(x_bytes);
         if res.is_infinite() || res.is_nan() {
             0.
+        } else if res.abs() > 1e300 {
+            1e300
         } else {
             res
         }
