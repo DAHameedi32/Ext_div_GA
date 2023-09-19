@@ -10,7 +10,7 @@ pub fn GA_main(
     _generations: i8,
     _pop_size: usize,
 ) -> (Mat<f64>, f64) {
-    let mut population = pop_init(_pop_size, &k_plus_one_forms[0]); //initialises population of exterior derivative matrices
+    let mut population = reproduction::pop_init(_pop_size, &k_plus_one_forms[0]); //initialises population of exterior derivative matrices
 
     //repeat this block of code ad 100 generations
     for _r in 0.._generations {
