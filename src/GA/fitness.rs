@@ -63,10 +63,9 @@ pub fn compute_fitness(
             );
             println!("mulbuff {} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
 
-            closeness += exp(- (k_plus_one_form.read(y, x).powf(2.0f64)
-                - mulbuff.read(y, x).powf(2.0f64)))
-            .abs()
-            .sqrt(); //will determine the numerical closeness of each element of each matrix
+            closeness +=
+                (-((k_plus_one_form.read(y, x).powi(2) - mulbuff.read(y, x).powi(2)).abs())).exp();
+            //will determine the numerical closeness of each element of each matrix
         }
     }
 
