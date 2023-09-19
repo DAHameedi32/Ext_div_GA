@@ -46,7 +46,12 @@ pub fn reproduce(father: &Mat<f64>, mother: &Mat<f64>) -> Mat<f64> {
                 let mask: u8 = rng.gen();
                 *f_byte = (*f_byte & mask) | (m_byte & !mask);
             });
-        f64::from_ne_bytes(f_bytes)
+        let res = f64::from_ne_bytes(f_bytes);
+        if res.is_infinite() || res.is_nan() {
+            0.
+        } else {
+            res
+        }
     });
     return child;
 }
@@ -75,7 +80,12 @@ pub fn mutate(matrix: &Mat<f64>, mutation_probability: f64) -> Mat<f64> {
             *byte ^= mask // do bitwise XOR (inplace, equiv to byte ^ mask)
         });
         // turn back into integer
-        f64::from_ne_bytes(x_bytes)
+        let res = f64::from_ne_bytes(x_bytes);
+        if res.is_infinite() || res.is_nan() {
+            0.
+        } else {
+            res
+        }
     });
     return mutated_matrix;
 }

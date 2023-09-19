@@ -28,6 +28,7 @@ pub fn rank_pop(
             k_plus_one_forms[j].as_ref(),
             ext_d_population[j].as_ref(),
         ));
+        println!("-------------");
     }
     println!("Done");
     return ranked_pop;
@@ -54,8 +55,11 @@ pub fn compute_fitness(
     );
     for y in 0..mulbuff.nrows() {
         for x in 0..mulbuff.ncols() {
+            println!("{} {} {}", y, x, k_plus_one_form.read(y, x).powf(2.0f64));
+            println!("{} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
+
             closeness += (k_plus_one_form.read(y, x).powf(2.0f64)
-                - mulbuff.read((y), (x)).powf(2.0f64))
+                - mulbuff.read(y, x).powf(2.0f64))
             .abs()
             .sqrt(); //will determine the numerical closeness of each element of each matrix
         }
