@@ -94,7 +94,7 @@ pub fn GA_main(
         //let population = new_gen:
         population = new_gen;
         println!("Pop size end {}", population.len());
-        population.iter().for_each(|p| eprintln!("{:?}", p))
+        // population.iter().for_each(|p| eprintln!("{:?}", p))
         //repeat for 100 generations now
     }
     //finally extract the fittest matrix and return it:

@@ -15,6 +15,16 @@ pub fn direct_prod(A: &Mat<f64>, B: &Mat<f64>) -> Mat<f64> {
 
     // panic!("here");
     let ret_mat = Mat::with_dims(p * m, q * n, |i, j| {
+        if (A.read(i / p, j / q) * B.read(i % p, j % q)).is_nan() {
+            eprintln!(
+                "{} {} {}",
+                A.read(i / p, j / q),
+                B.read(i % p, j % q),
+                A.read(i / p, j / q) * B.read(i % p, j % q)
+            );
+            panic!("In direct prod")
+        }
+
         A.read(i / p, j / q) * B.read(i % p, j % q)
     });
 

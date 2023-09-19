@@ -61,7 +61,7 @@ pub fn compute_fitness(
                 x,
                 k_plus_one_form.read(y, x).powf(2.0f64)
             );
-            println!("mulbuff {} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
+            // println!("mulbuff {} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
 
             closeness +=
                 (-((k_plus_one_form.read(y, x).powi(2) - mulbuff.read(y, x).powi(2)).abs())).exp();
@@ -99,6 +99,7 @@ pub fn compute_fitness(
     //do this by getting the jth k-form and the j+1th k-form and padding them out
     let a = k_form_a.to_owned();
     let b: Mat<f64> = k_form_b.to_owned();
+
     let wedge_buff = wedge_m(&a, &b);
     let mut ext_div_buff_l = Mat::zeros(wedge_buff.nrows(), wedge_buff.ncols());
     let ext_d_pop_buff = pad_for_proc(&exterior_derivative.to_owned(), &ext_div_buff_l);
@@ -135,11 +136,20 @@ pub fn compute_fitness(
     let a_rref = gaussian_elimination(&a);
     let p = compute_dims(&a_rref);
     let antisymmetry_coefficient: i32 = -1;
+    eprintln!("{:?}", buff_d);
+    eprintln!("{:?}", buff_b);
+    eprintln!("{:?}", a);
+    eprintln!("{:?}", db);
     let a_wedge_db_buff = wedge_m(&a, &db);
     let a_wedge_db = Mat::with_dims(a_wedge_db_buff.nrows(), a_wedge_db_buff.ncols(), |i, j| {
+        if (a_wedge_db_buff.read(i, j)).is_nan() {
+            eprintln!("{}", a_wedge_db_buff.read(i, j));
+            panic!("In a_wedge_db")
+        }
         antisymmetry_coefficient.pow(p) as f64 * a_wedge_db_buff.read(i, j)
     });
 
+    eprint!("Done");
     let mut ext_div_buff_r = wedge_m(&da, &b) + a_wedge_db;
 
     println!(
@@ -154,20 +164,46 @@ pub fn compute_fitness(
         ext_div_buff_l = pad_for_proc(&ext_div_buff_l, &ext_div_buff_r);
     }
     //now determine fitness of this equality:
-    let ext_div_result = ext_div_buff_r - ext_div_buff_l;
-    let mut derivative_closeness: i64 = 0;
+    // let ext_div_result = ext_div_buff_r - ext_div_buff_l;
+    let mut derivative_closeness: f64 = 0.;
 
-    for y in 0..ext_div_result.nrows() as usize {
-        for x in 0..ext_div_result.ncols() as usize {
-            derivative_closeness = derivative_closeness
-                .saturating_add(ext_div_result.read(y, x).powf(2.0f64).sqrt() as i64);
+    // for y in 0..ext_div_result.nrows() as usize {
+    //     for x in 0..ext_div_result.ncols() as usize {
+    //         println!("{}", ext_div_result.read(y, x));
+    //         derivative_closeness += (-ext_div_result.read(y, x).powi(2)).exp();
+    //     }
+    // }
+
+    for y in 0..ext_div_buff_r.nrows() {
+        for x in 0..ext_div_buff_r.ncols() {
+            println!(
+                "ext_div_buff_r {} {} {}",
+                y,
+                x,
+                ext_div_buff_r.read(y, x).powf(2.0f64)
+            );
+
+            println!(
+                "ext_div_buff_r {} {} {}",
+                y,
+                x,
+                ext_div_buff_l.read(y, x).powf(2.0f64)
+            );
+
+            // println!("mulbuff {} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
+
+            derivative_closeness +=
+                (-((ext_div_buff_r.read(y, x).powi(2) - ext_div_buff_l.read(y, x).powi(2)).abs()))
+                    .exp();
+            //will determine the numerical closeness of each element of each matrix
         }
     }
+
     println!(
         "d closeness {}, nilp metric {}, closeness {}",
         derivative_closeness, nilp_metric, closeness
     );
-    fitness = derivative_closeness as f64 + nilp_metric as f64 + (closeness as f64).powf(-1.0f64);
+    fitness = derivative_closeness as f64 + nilp_metric as f64 + closeness as f64;
 
     let tuple = (exterior_derivative.to_owned(), fitness);
     return tuple;
