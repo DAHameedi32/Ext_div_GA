@@ -19,7 +19,7 @@ pub fn GA_main(
         let moved_k_forms = k_forms.clone();
         let moved_k_plus_one_forms = k_plus_one_forms.clone();
 
-        let ranked_pop = fitness::rank_pop(&moved_k_forms, &moved_k_plus_one_forms, &pop_buffer); // current error here
+        let ranked_pop = fitness::rank_pop(&k_forms, &k_plus_one_forms, &pop_buffer); // current error here
         println!("Pop size: {}", ranked_pop.len());
         ranked_pop
             .iter()
@@ -50,7 +50,7 @@ pub fn GA_main(
             }
         }
 
-        println!("Pairs {}", breeding_pairs.len());
+        // println!("Pairs {}", breeding_pairs.len());
 
         //now iterate through the breeding pairs and create a new generation:
         breeding_pairs.iter().for_each(|pair| {
@@ -94,6 +94,7 @@ pub fn GA_main(
         //let population = new_gen:
         population = new_gen;
         println!("Pop size end {}", population.len());
+        population.iter().for_each(|p| eprintln!("{:?}", p))
         //repeat for 100 generations now
     }
     //finally extract the fittest matrix and return it:

@@ -55,8 +55,13 @@ pub fn compute_fitness(
     );
     for y in 0..mulbuff.nrows() {
         for x in 0..mulbuff.ncols() {
-            println!("{} {} {}", y, x, k_plus_one_form.read(y, x).powf(2.0f64));
-            println!("{} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
+            println!(
+                "k_plus_one form {} {} {}",
+                y,
+                x,
+                k_plus_one_form.read(y, x).powf(2.0f64)
+            );
+            println!("mulbuff {} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
 
             closeness += (k_plus_one_form.read(y, x).powf(2.0f64)
                 - mulbuff.read(y, x).powf(2.0f64))
