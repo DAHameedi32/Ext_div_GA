@@ -7,7 +7,7 @@ mod reproduction;
 pub fn GA_main(
     k_forms: Vec<Mat<f64>>,
     k_plus_one_forms: Vec<Mat<f64>>,
-    _generations: i8,
+    _generations: u8,
     _pop_size: usize,
 ) -> (Mat<f64>, f64) {
     let mut population = reproduction::pop_init(_pop_size, &k_plus_one_forms[0]); //initialises population of exterior derivative matrices
@@ -19,7 +19,7 @@ pub fn GA_main(
         let moved_k_plus_one_forms = k_plus_one_forms.clone();
 
         let ranked_pop = fitness::rank_pop(&moved_k_forms, &moved_k_plus_one_forms, &pop_buffer); // current error here
-                                                                                        // panic!("fitness done");
+                                                                                                  // panic!("fitness done");
         let mean_fit;
         let mut total_fit = 0.0f64;
         let mut counter = 0;
@@ -46,25 +46,25 @@ pub fn GA_main(
         }
 
         //now iterate through the breeding pairs and create a new generation:
-        for i in 0..breeding_pairs.len() {
-            new_gen.push(reproduction::reproduce(&breeding_pairs[i].0, &breeding_pairs[i].1));
-        }
+        breeding_pairs.iter().for_each(|pair| {
+            new_gen.push(reproduction::reproduce(&pair.0, &pair.1));
+        });
         //check to see how large the new generation is:
         //if larger than pop_size then cull at random
         //if lower than pop_size then bring in members of older population:
-        if (new_gen.len() > _pop_size as usize) {
-            while ((new_gen.len() as i64) > _pop_size as i64) {
+        if (new_gen.len() > _pop_size) {
+            while ((new_gen.len()) > _pop_size) {
                 //cull at random:
                 let mut rng = rand::thread_rng();
-                let x: i64 = rng.gen_range(0..new_gen.len() as i64);
-                new_gen.remove(x as usize);
+                let x: usize = rng.gen_range(0..new_gen.len());
+                new_gen.remove(x);
             }
         }
-        if (new_gen.len() < _pop_size as usize) {
+        if (new_gen.len() < _pop_size) {
             //find how many more members are needed:
             let perc_fill: f64 = new_gen.len() as f64 / _pop_size as f64;
             let prob_fill = 1.0f64 - perc_fill;
-            for i in 0.._pop_size as usize {
+            for i in 0.._pop_size {
                 //populate with matrices from old gen:
                 let mut rng = rand::thread_rng();
                 let x: f64 = rng.gen();
@@ -74,18 +74,16 @@ pub fn GA_main(
             }
         }
         //once all these checks have been fulfilled, then we can mutate the new generation:
-        for i in 0..new_gen.len() {
-            let prob_mut = 0.05f64;
-            let mut rng = rand::thread_rng();
+        let prob_mut = 0.05f64;
+        let mut rng = rand::thread_rng();
+        new_gen.iter_mut().for_each(|mat| {
             let x: f64 = rng.gen();
-            if (x > prob_mut) {
-                let matrix_buff: Mat<f64> = Mat::zeros(new_gen[i].nrows(), new_gen[i].ncols());
-                let bit_string = reproduction::to_bitstring(&new_gen[i]);
-                let new_bit_string = reproduction::mutate(bit_string, prob_mut);
-                let new_mat = reproduction::mat_from_bitstring(new_bit_string, matrix_buff);
-                new_gen[i] = new_mat;
+            if x > prob_mut {
+                // im not sure what this condition is for
+                let new_mat = reproduction::mutate(mat, prob_mut);
+                *mat = new_mat;
             }
-        }
+        });
         //let population = new_gen:
         population = new_gen;
         //repeat for 100 generations now
@@ -94,7 +92,7 @@ pub fn GA_main(
     let final_pop = fitness::rank_pop(&k_forms, &k_plus_one_forms, &population);
     let mut fittest_index = 0;
     let mut fitness_value = 0.0f64;
-    for i in 0..final_pop.len() as usize {
+    for i in 0..final_pop.len() {
         if (final_pop[i].1 >= fitness_value) {
             fitness_value = final_pop[i].1;
             fittest_index = i;
