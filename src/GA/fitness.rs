@@ -29,6 +29,7 @@ pub fn rank_pop(
             ext_d_population[j].as_ref(),
         ));
     }
+    println!("Done");
     return ranked_pop;
 }
 

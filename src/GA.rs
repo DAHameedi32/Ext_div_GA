@@ -19,15 +19,15 @@ pub fn GA_main(
         let moved_k_plus_one_forms = k_plus_one_forms.clone();
 
         let ranked_pop = fitness::rank_pop(&moved_k_forms, &moved_k_plus_one_forms, &pop_buffer); // current error here
-                                                                                                  // panic!("fitness done");
-        let mean_fit;
+
         let mut total_fit = 0.0f64;
         let mut counter = 0;
         for k in 0..ranked_pop.len() {
             total_fit += ranked_pop[k].1;
             counter += 1;
         }
-        mean_fit = total_fit / counter as f64;
+
+        let mean_fit = total_fit / counter as f64;
 
         let mut breeding_pairs: Vec<(Mat<f64>, Mat<f64>)> = vec![];
         let mut new_gen: Vec<Mat<f64>> = vec![];
