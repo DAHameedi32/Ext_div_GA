@@ -147,11 +147,12 @@ pub fn compute_fitness(
     }
     //now determine fitness of this equality:
     let ext_div_result = ext_div_buff_r - ext_div_buff_l;
-    let mut derivative_closeness = 0;
+    let mut derivative_closeness: i64 = 0;
 
     for y in 0..ext_div_result.nrows() as usize {
         for x in 0..ext_div_result.ncols() as usize {
-            derivative_closeness += ext_div_result.read(y, x).powf(2.0f64).sqrt() as i64;
+            derivative_closeness = derivative_closeness
+                .saturating_add(ext_div_result.read(y, x).powf(2.0f64).sqrt() as i64);
         }
     }
     println!(
