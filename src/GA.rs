@@ -7,7 +7,7 @@ mod reproduction;
 pub fn GA_main(
     k_forms: Vec<Mat<f64>>,
     k_plus_one_forms: Vec<Mat<f64>>,
-    _generations: i8,
+    _generations: u8,
     _pop_size: usize,
 ) -> (Mat<f64>, f64) {
     let mut population = reproduction::pop_init(_pop_size, &k_plus_one_forms[0]); //initialises population of exterior derivative matrices
