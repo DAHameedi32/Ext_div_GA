@@ -56,6 +56,7 @@ pub fn compute_fitness(
         for x in 0..mulbuff.ncols() {
             closeness += (k_plus_one_form.read(y, x).powf(2.0f64)
                 - mulbuff.read((y), (x)).powf(2.0f64))
+            .abs()
             .sqrt(); //will determine the numerical closeness of each element of each matrix
         }
     }
