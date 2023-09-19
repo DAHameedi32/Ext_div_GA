@@ -14,6 +14,7 @@ pub fn GA_main(
 
     //repeat this block of code ad 100 generations
     for _r in 0.._generations {
+        println!("Generation {_r}");
         let pop_buffer = population.clone();
         let moved_k_forms = k_forms.clone();
         let moved_k_plus_one_forms = k_plus_one_forms.clone();

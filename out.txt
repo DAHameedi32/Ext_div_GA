@@ -1,0 +1,132 @@
+Generation 0
+calculating for k-form 1
+LHS 64, RHS 16
+d closeness 0, nilp metric 80, closeness 13.006687484438753
+calculating for k-form 2
+LHS 64, RHS 16
+d closeness 175, nilp metric 80, closeness 13.789704016311573
+calculating for k-form 3
+LHS 64, RHS 16
+d closeness 49, nilp metric 80, closeness 10.506548613065148
+calculating for k-form 4
+LHS 64, RHS 16
+d closeness 179, nilp metric 80, closeness 9.214610787626185
+calculating for k-form 5
+LHS 64, RHS 16
+d closeness 206, nilp metric 0, closeness 22.845542305750225
+calculating for k-form 6
+LHS 64, RHS 16
+d closeness 215, nilp metric 80, closeness 11.602040367327824
+calculating for k-form 7
+LHS 64, RHS 16
+d closeness 180, nilp metric 80, closeness 15.254363668446702
+calculating for k-form 8
+LHS 64, RHS 16
+d closeness 138, nilp metric 80, closeness 9.646885281742636
+calculating for k-form 9
+LHS 64, RHS 16
+d closeness 116, nilp metric 80, closeness 14.93198111420099
+calculating for k-form 10
+LHS 64, RHS 16
+d closeness 158, nilp metric 0, closeness 23.34707418846908
+calculating for k-form 11
+LHS 64, RHS 16
+d closeness 237, nilp metric 80, closeness 14.48600793440654
+calculating for k-form 12
+LHS 64, RHS 16
+d closeness 132, nilp metric 80, closeness 8.520572836201469
+calculating for k-form 13
+LHS 64, RHS 16
+d closeness 136, nilp metric 80, closeness 12.677708681228172
+calculating for k-form 14
+LHS 64, RHS 16
+d closeness 100, nilp metric 80, closeness 14.183812310298977
+calculating for k-form 15
+LHS 64, RHS 16
+d closeness 276, nilp metric 0, closeness 28.22945151231069
+Done
+Pop size: 15
+fitness 93.00668748443876
+fitness 268.7897040163116
+fitness 139.50654861306515
+fitness 268.21461078762616
+fitness 228.84554230575023
+fitness 306.60204036732785
+fitness 275.25436366844673
+fitness 227.64688528174264
+fitness 210.931981114201
+fitness 181.3470741884691
+fitness 331.48600793440653
+fitness 220.52057283620147
+fitness 228.67770868122818
+fitness 194.18381231029898
+fitness 304.2294515123107
+Pairs 190
+Pop size end 100
+Generation 1
+calculating for k-form 1
+LHS 64, RHS 16
+d closeness 0, nilp metric 80, closeness inf
+calculating for k-form 2
+LHS 64, RHS 16
+d closeness 165, nilp metric 80, closeness 9.807374925687279
+calculating for k-form 3
+LHS 64, RHS 16
+d closeness 159, nilp metric 80, closeness 12.41992990286101
+calculating for k-form 4
+LHS 64, RHS 16
+d closeness 77, nilp metric 80, closeness 5.621925960138661
+calculating for k-form 5
+LHS 64, RHS 16
+d closeness 170, nilp metric 0, closeness 24.78675482567336
+calculating for k-form 6
+LHS 64, RHS 16
+d closeness 63, nilp metric -160, closeness NaN
+calculating for k-form 7
+LHS 64, RHS 16
+d closeness 112, nilp metric 80, closeness 14.35859211111837
+calculating for k-form 8
+LHS 64, RHS 16
+d closeness 9223372036854775807, nilp metric 80, closeness 13.210973458049391
+calculating for k-form 9
+LHS 64, RHS 16
+d closeness 144, nilp metric 80, closeness 14.73093380897609
+calculating for k-form 10
+LHS 64, RHS 16
+d closeness 9223372036854775807, nilp metric 0, closeness inf
+calculating for k-form 11
+LHS 64, RHS 16
+d closeness 304, nilp metric 80, closeness 17.022446823664247
+calculating for k-form 12
+LHS 64, RHS 16
+d closeness 152, nilp metric 80, closeness 8.597071755358371
+calculating for k-form 13
+LHS 64, RHS 16
+d closeness 9223372036854775807, nilp metric 80, closeness inf
+calculating for k-form 14
+LHS 64, RHS 16
+d closeness 128, nilp metric 80, closeness 16.26313178721399
+calculating for k-form 15
+LHS 64, RHS 16
+d closeness 9223372036854775807, nilp metric 0, closeness inf
+Done
+Pop size: 15
+fitness inf
+fitness 254.80737492568727
+fitness 251.419929902861
+fitness 162.62192596013867
+fitness 194.78675482567337
+fitness NaN
+fitness 206.35859211111836
+fitness 9223372036854776000
+fitness 238.7309338089761
+fitness inf
+fitness 401.02244682366427
+fitness 240.59707175535837
+fitness inf
+fitness 224.26313178721398
+fitness inf
+Pairs 0
+Pop size end 0
+Generation 2
+calculating for k-form 1
