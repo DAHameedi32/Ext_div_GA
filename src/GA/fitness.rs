@@ -63,8 +63,8 @@ pub fn compute_fitness(
             );
             println!("mulbuff {} {} {}", y, x, mulbuff.read(y, x).powf(2.0f64));
 
-            closeness += (k_plus_one_form.read(y, x).powf(2.0f64)
-                - mulbuff.read(y, x).powf(2.0f64))
+            closeness += exp(- (k_plus_one_form.read(y, x).powf(2.0f64)
+                - mulbuff.read(y, x).powf(2.0f64)))
             .abs()
             .sqrt(); //will determine the numerical closeness of each element of each matrix
         }
@@ -168,7 +168,7 @@ pub fn compute_fitness(
         "d closeness {}, nilp metric {}, closeness {}",
         derivative_closeness, nilp_metric, closeness
     );
-    fitness = derivative_closeness as f64 + nilp_metric as f64 + closeness as f64;
+    fitness = derivative_closeness as f64 + nilp_metric as f64 + (closeness as f64).powf(-1.0f64);
 
     let tuple = (exterior_derivative.to_owned(), fitness);
     return tuple;
