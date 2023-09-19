@@ -145,7 +145,7 @@ pub fn compute_fitness(
         ext_div_buff_l = pad_for_proc(&ext_div_buff_l, &ext_div_buff_r);
     }
     //now determine fitness of this equality:
-    let ext_div_result = ext_div_buff_r - ext_div_buff_l; // < -- error
+    let ext_div_result = ext_div_buff_r - ext_div_buff_l;
     let mut derivative_closeness = 0;
 
     for y in 0..ext_div_result.nrows() as usize {
@@ -153,6 +153,10 @@ pub fn compute_fitness(
             derivative_closeness += ext_div_result.read(y, x).powf(2.0f64).sqrt() as i64;
         }
     }
+    println!(
+        "d closeness {}, nilp metric {}, closeness {}",
+        derivative_closeness, nilp_metric, closeness
+    );
     fitness = derivative_closeness as f64 + nilp_metric as f64 + closeness as f64;
 
     let tuple = (exterior_derivative.to_owned(), fitness);
